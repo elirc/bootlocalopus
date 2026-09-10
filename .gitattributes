@@ -1,0 +1,5 @@
+# Keep the repo LF-normalised: lesson content lives in template literals that
+# are compared and compiled, so consistent line endings avoid noisy diffs.
+* text=auto eol=lf
+*.png binary
+*.jpg binary

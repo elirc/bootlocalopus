@@ -1,0 +1,48 @@
+{
+  "name": "bootlocalopus",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A local, gamified curriculum for going from junior to mid-level SWE on the JS/TS/React/Node/Postgres stack",
+  "scripts": {
+    "start": "npm run build && tsx server/index.ts --prod",
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "tsx watch --clear-screen=false server/index.ts",
+    "dev:web": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint:content": "node scripts/lint-content.mjs content/js/index.ts content/ts/index.ts content/react/index.ts content/node/index.ts content/sql/index.ts content/craft/index.ts",
+    "verify": "tsx scripts/verify-content.ts",
+    "lesson": "tsx scripts/debug-lesson.ts",
+    "curriculum": "tsx scripts/curriculum-report.ts",
+    "test:sandbox": "tsx scripts/smoke.ts",
+    "test:api": "tsx scripts/e2e.ts",
+    "test:ui": "node scripts/ui-smoke.mjs",
+    "test": "npm run typecheck && npm run lint:content && npm run test:sandbox && npm run verify"
+  },
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.2",
+    "@codemirror/lang-sql": "^6.8.0",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@electric-sql/pglite": "^0.2.17",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.0.1",
+    "@uiw/react-codemirror": "^4.23.6",
+    "express": "^4.21.2",
+    "jsdom": "^25.0.1",
+    "marked": "^14.1.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "concurrently": "^9.1.0",
+    "tsx": "^4.19.2",
+    "vite": "^5.4.11"
+  }
+}
