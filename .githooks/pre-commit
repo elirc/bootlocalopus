@@ -1,0 +1,26 @@
+#!/bin/sh
+# Pre-commit: typecheck, then verify the lessons this commit touches.
+# Installed by `npm install` (scripts/setup-hooks.mjs sets core.hooksPath).
+# Skip once with `git commit --no-verify`.
+#
+# `verify --changed` maps changed files to lessons (content/<track>/<chapter>/<id>/…).
+# A change to the sandbox or content/*.ts selects every lesson; --max keeps the
+# hook fast by falling back to static checks only, and CI runs the full verify.
+
+# GUI git clients often run hooks with a minimal PATH: do not block commits there.
+if ! command -v npm >/dev/null 2>&1; then
+  echo "pre-commit: npm not on PATH, skipping checks"
+  exit 0
+fi
+
+echo "pre-commit: typecheck"
+npm run --silent typecheck || {
+  echo "pre-commit: typecheck failed (commit with --no-verify to skip)"
+  exit 1
+}
+
+echo "pre-commit: verify --changed"
+npm run --silent verify -- --changed --max=12 || {
+  echo "pre-commit: content verification failed (commit with --no-verify to skip)"
+  exit 1
+}

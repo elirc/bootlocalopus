@@ -1,0 +1,2 @@
+-- TODO: plan (not null, default free), a validated check added without a
+-- long lock, last_seen_at, and the case-insensitive unique email index

@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    # Windows is informational: the sandbox (worker threads, PGlite WASM, real
+    # sockets) is slower and noisier on hosted Windows runners, and Windows
+    # minutes bill at 2x. The author develops on Windows, so a red Windows job
+    # is worth reading, but only ubuntu gates a merge.
+    continue-on-error: ${{ matrix.os == 'windows-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        node: [22, 24]
+        include:
+          - os: windows-latest
+            node: 24
+    env:
+      # Hosted runners are 4 vCPU / 16 GB: 3 parallel sandbox runs, each with
+      # 3x the learner budget; timeouts are re-run serially at 1x.
+      VERIFY_JOBS: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      # typecheck, unit tests (economy), sandbox smoke, verify every lesson.
+      - run: npm test
+        env:
+          VERIFY_JSON: verify-summary.json
+      # Both start their own server on a free port with a throwaway save file.
+      - run: npm run test:api
+      - run: npm run test:ui
+      - run: npm run build
+      - name: Upload the verify summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-${{ matrix.os }}-node${{ matrix.node }}
+          path: verify-summary.json
+          if-no-files-found: ignore

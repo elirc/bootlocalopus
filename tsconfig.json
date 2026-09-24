@@ -6,6 +6,7 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "strict": true,
+    "isolatedModules": true,
     "noEmit": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -14,5 +15,13 @@
     "verbatimModuleSyntax": false,
     "types": ["node", "react", "react-dom"]
   },
-  "include": ["server", "content", "web/src", "scripts", "vite.config.ts"]
+  "include": ["server", "content", "web/src", "scripts", "vite.config.ts"],
+  "exclude": [
+    "content/**/starter.ts",
+    "content/**/solution.ts",
+    "content/**/tests.ts",
+    "content/**/subject.ts",
+    "content/**/mutants/**",
+    "content/**/equivalents/**"
+  ]
 }

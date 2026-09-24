@@ -3,3 +3,7 @@
 * text=auto eol=lf
 *.png binary
 *.jpg binary
+*.wasm binary
+*.woff2 binary
+# The hook must stay LF even on a Windows checkout, or sh chokes on \r.
+.githooks/* text eol=lf

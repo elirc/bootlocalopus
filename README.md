@@ -3,13 +3,13 @@
 A local, gamified curriculum for going from **junior to mid-level** on the
 JavaScript / TypeScript / React / Node / Postgres stack.
 
-72 lessons, 6,785 XP, six tracks. No LeetCode, no algorithm puzzles, no
-"reverse a binary tree" — every lesson is a thing you will actually be asked to
-do at work, and every one is graded by running your code against real tooling.
+102 lessons, 10,045 XP, seven tracks. No LeetCode, no algorithm puzzles —
+every lesson is a thing you will actually be asked to do at work, and every
+one is graded by running your code against real tooling.
 
 ```
 npm install
-npm start          # builds the UI and serves everything at http://localhost:4517
+npm start          # builds the UI and serves everything at http://127.0.0.1:4517
 ```
 
 For development, with hot reload on both halves:
@@ -18,8 +18,9 @@ For development, with hot reload on both halves:
 npm run dev        # API on :4517, UI on :5180
 ```
 
-Progress lives in `data/progress.json`. Nothing leaves your machine; there is
-no account, no telemetry, and no network call at runtime.
+Progress lives in `data/progress.json` (daily backups beside it). Nothing
+leaves your machine: the server binds to loopback only, there is no account,
+no telemetry, and no network call at runtime.
 
 ---
 
@@ -30,23 +31,19 @@ thread against genuine tooling:
 
 | Lesson kind | How it is graded | Count |
 | --- | --- | --- |
-| `js` | Your module is imported and exercised by a test suite | 15 |
-| `ts` | Same, transpiled from TypeScript first | 2 |
-| `typecheck` | **Real `tsc --strict`.** Zero diagnostics is the pass condition, and the spec asserts types with `Expect<Equal<…>>` plus `@ts-expect-error` | 10 |
-| `react` | **jsdom + React DOM + Testing Library.** Components are rendered, clicked and re-rendered | 12 |
-| `node` | **A real HTTP server** on a real port, hit with real `fetch`. Also streams, `node:crypto`, graceful shutdown | 11 |
-| `sql` | **Real Postgres** (PGlite, compiled to WASM). Your DDL and queries run; constraints actually fire | 12 |
-| `quiz` | Judgement calls that code cannot grade — code review, git, incidents, caching | 10 |
+| `js` / `ts` | Your module is imported and exercised by a test suite | 19 |
+| `typecheck` | **Real `tsc --strict`.** Zero diagnostics is the pass condition; specs assert types with `Expect<Equal<…>>` and `@ts-expect-error` | 12 |
+| `react` | **jsdom + React DOM + Testing Library.** Rendered, clicked, re-rendered, checked for ARIA and focus | 16 |
+| `node` | **A real HTTP server** on a real port, hit with real `fetch`. Streams, `node:crypto`, `AsyncLocalStorage`, graceful shutdown | 20 |
+| `sql` | **Real Postgres** (PGlite, compiled to WASM). DDL and queries run; constraints fire; `EXPLAIN` plans are inspected | 14 |
+| `node-db` | Node code against that same real Postgres — parameterisation, transactions | 2 |
+| `mutation` | **You write the tests.** They must pass a correct implementation *and* a refactored equivalent, and catch every deliberately broken mutant | 6 |
+| `quiz` | Judgement calls code cannot grade — code review (including a real diff), git, incidents, caching, tsconfig | 13 |
 
 There is no "check my answer against a string" anywhere. If your rate limiter
-leaks a token, or your `useEffect` lets a stale response win a race, or your
-left join quietly drops the rows you were counting, the tests say so — with the
-same kind of failure message you would get from a real test suite.
-
-**The graders are adversarial on purpose.** They test the cases that separate
-working code from correct code: the empty array, the cached `undefined`, the
-promise that rejects after unmount, the duplicate timestamp on the pagination
-boundary, the 4xx that must not be retried.
+leaks a token, your `useEffect` lets a stale response win a race, your cookie
+lacks `SameSite`, or your left join quietly drops the rows you were counting,
+the tests say so.
 
 ---
 
@@ -54,160 +51,123 @@ boundary, the 4xx that must not be retried.
 
 | Track | Chapters | Lessons | XP | What it is for |
 | --- | --- | --- | --- | --- |
-| **JavaScript You Actually Need** | 4 | 15 | 1,370 | Closures, the event loop, real concurrency control, cancellation, immutability, error design |
-| **TypeScript for Production** | 3 | 12 | 1,090 | Narrowing, discriminated unions, generics with constraints, `infer`, template literal types, `satisfies`, typed API surfaces |
-| **React Patterns & Performance** | 3 | 12 | 1,160 | Derived state, reducers, custom hooks, effect cleanup and race conditions, compound components, accountable renders, accessibility |
-| **Node & API Engineering** | 3 | 12 | 1,195 | HTTP without a framework, middleware, validation, error envelopes, signed tokens, rate limits, streams, graceful shutdown, layering |
-| **Postgres & Data Modelling** | 3 | 13 | 1,260 | Constraints, normalisation, safe migrations, indexes, joins, window functions, recursive CTEs, upserts, N+1, keyset pagination |
-| **Engineering Craft** | 2 | 8 | 710 | Code review, git with intent, debugging as a method, refactoring under test, caching, observability, scoping, incident response |
+| **JavaScript You Actually Need** | 5 | 17 | 1,565 | Closures, the event loop, concurrency control, cancellation, immutability, error design, dates across DST, regex that cannot DoS you |
+| **TypeScript for Production** | 4 | 15 | 1,350 | Narrowing, discriminated unions, generics, `infer`, template literals, `satisfies`, typed APIs, schema inference, branded ids, the tsconfig flags that catch bugs |
+| **React Patterns & Performance** | 4 | 16 | 1,690 | Derived state, reducers, hooks, effect races, composition, accountable renders, accessibility, error boundaries, forms at scale, XSS, an ARIA combobox |
+| **Node & API Engineering** | 5 | 20 | 2,115 | HTTP without a framework, middleware, validation, errors, tokens, rate limits, streams, shutdown; security (authz, password hashing, cookies/CSRF, secrets); production (single-flight caches, structured logs, SSE, circuit breakers) |
+| **Postgres & Data Modelling** | 5 | 18 | 1,745 | Constraints, migrations, indexes, joins, windows, recursive CTEs, upserts, N+1, keyset pagination; Postgres from code (injection, transactions, a DataLoader); JSONB and `EXPLAIN` |
+| **Testing & Quality** | 2 | 7 | 780 | You write the suite, graded on whether it catches real bugs without pinning the implementation |
+| **Engineering Craft** | 2 | 9 | 800 | Code review, git, debugging method, refactoring under test, caching, observability, scoping, incident response |
 
-Each chapter ends in a **boss**: a bigger, multi-part build worth 3–5× a normal
-lesson. The bosses are the things you would be given as a take-home:
-
-- an `EventEmitter` with error isolation and safe mutation during emit
-- a cancellable task queue with bounded concurrency and `AbortSignal`
-- an API client with timeouts, selective retries and typed failures
-- a fully typed `EventEmitter` where wrong arity is a compile error
-- a sortable, filterable, paginated data table
-- a notes API with auth, validation, error envelopes and pagination
-- a monthly revenue report with CTEs, window functions and gap-filled months
-- a 3am incident, worked through in order
+Most chapters end in a **boss** worth 3–5× a normal lesson — the kind of thing
+you would be given as a take-home.
 
 ### Progression
 
-- The first lesson of **every** track is open, so you can start where your gap
-  is rather than grinding chapter one.
-- Within a chapter, lessons unlock one at a time.
-- A chapter opens once **70%** of the previous one is done — one lesson you
-  bounce off never walls off a whole chapter.
+- The first lesson of **every** track is open.
+- **All but one.** A lesson opens when at most one lesson before it in its
+  chapter is unpassed; a chapter opens when at most one lesson of the previous
+  chapter is unpassed. Bosses can be skipped for unlocking but are required
+  for the track badge and the top rank.
 
 ---
 
 ## The game layer
 
-It is not stickers on a textbook; the economy is designed so the incentives
-point at actually understanding things.
+Redesigned after review found v1 rewarded guessing; the reasoning is in
+`upskilling/journal/004-redesigning-the-economy.md`.
 
-- **XP and levels.** Level *n* costs `100 + 50(n−1)` XP. Ranks run Junior I →
-  Junior II → Junior III → Mid-Track → Mid I → Mid II → Mid III →
-  Senior-Track.
-- **Mid-level readiness.** One headline number: weighted completion across all
-  six tracks. This is the actual goal.
-- **First-try bonus (+25%) and combo.** Consecutive first-try passes build a
-  multiplier up to ×1.25. A failed submit resets it. Reading the brief properly
-  pays better than guessing.
-- **Hints cost XP** (−12% each, floored at −50%), and revealing the reference
-  solution caps the reward at 20%. Help is always available and never free.
-- **Run vs Submit.** `Run` grades without consequences — no attempt counted, no
-  combo lost. Only `Submit` scores. Experiment freely.
-- **Streaks** with earned freezes (one per 5-day streak, max 3), so a missed
-  day does not erase three weeks and the app never lies about the streak.
-- **Daily quests**, seeded from the date so refreshing cannot reroll the board.
-- **24 achievements**, including one secret. Badges are recomputed from
-  progress rather than trusted, so editing the curriculum cannot strand one.
+- **Run is free, Submit scores.** No attempt is counted for Run.
+- **Clean bonus:** a pass with no hints and no reveal pays **+20%**. There is
+  no first-try bonus and no combo.
+- **Hints** cost `base × 0.5 / hintCount` each — all together cost half, none
+  is free, the button shows the price. Revealing the solution caps the reward
+  at 20%.
+- **Rank comes from completion, not XP:** Junior I → II (10%) → III (25%) →
+  Mid-Track (40% + a boss) → Mid I (55% + bosses in three tracks) → Mid II
+  (70% + every track at half) → Mid III (85% + every boss) → **Mid-Level**
+  (100%).
+- **Levels** are a progress bar (`100 + 50(n−1)` XP each); finishing lands
+  around level 18–21.
+- **Streaks** with earned freezes spent automatically on a gap; **daily
+  quests** drawn only from what you can reach; **27 achievements** (1,420 XP).
+  What a pass was worth is frozen when it happens, so a hint opened afterwards
+  never costs a badge.
 
 ---
 
 ## Layout
 
 ```
-content/          the curriculum: one file per track, plain TypeScript data
-  types.ts        the lesson model
-  AUTHORING.md    how to write a lesson
+content/                        one folder per lesson, typed metadata per chapter
+  AUTHORING.md                  how to write a lesson
+  load.ts                       loader; validates every folder at startup
+  <track>/track.ts
+  <track>/<chapter>/chapter.ts
+  <track>/<chapter>/<lesson-id>/   brief.md, starter.*, solution.*, tests.*, fixtures.sql
 server/
-  index.ts        the API
-  content.ts      curriculum loading, unlock rules
-  gamify.ts       XP, levels, ranks, streaks, quests, achievements (pure)
-  progress.ts     the JSON save file
-  runner/
-    index.ts      spawns the sandbox, enforces the timeout
-    worker.mjs    the sandbox: compile, environment per kind, test harness
-web/src/          the React UI (hash routing, no router dependency)
-scripts/          content verification and end-to-end checks
-data/             your save file (gitignored)
+  index.ts        lock, sweep, listen on loopback
+  app.ts          the API — createApp({ store, runner, now }), testable in-process
+  rewards.ts      what happens when something is earned
+  projections.ts  read-only views for the client
+  gamify.ts       economy, ranks, streaks, quests, achievements (pure; unit-tested)
+  progress.ts     JSON save: fsync+rename, daily backups, quarantine, migrations, lock
+  runner/         the sandbox
+web/src/          React UI (hash routing, no router dependency)
+scripts/          verify, e2e, UI smoke, mutation check, hooks
+upskilling/       a mid→senior programme built on this codebase
 ```
 
 ### The sandbox
 
-`server/runner/worker.mjs` is the interesting file. It runs learner code in a
-worker thread, so an infinite loop or a top-level `throw` can be killed without
-touching the API, and it builds the right environment per lesson kind: jsdom +
-Testing Library for React, a PGlite instance seeded with the lesson's fixture
-for SQL, a TypeScript `Program` for the type-level lessons.
-
-It carries a hand-rolled test harness — `describe`/`it`/`expect` with about 25
-matchers, deep equality, `.not`, `.rejects`, and hooks scoped per `describe` —
-because pulling in a full test runner to grade a snippet costs more than it is
-worth, and this way the failure messages are written for a learner rather than
-for CI.
-
-Two deliberate details worth knowing if you extend it:
-
-- A ref'd heartbeat interval keeps the worker's event loop turning, because
-  Node unref's the timer behind `AbortSignal.timeout()` and an unref'd timer
-  alone never wakes a worker loop. Without it, any learner code awaiting
-  `AbortSignal.timeout()` would hang until the parent killed it.
-- Each SQL test runs inside a transaction that is rolled back, so a test that
-  inserts rows cannot change what the next test sees. The learner's own SQL runs
-  once before that, outside any transaction, so a lesson whose answer is DDL
-  leaves its tables in place.
+`server/runner/` treats the worker running learner code as **untrusted data**.
+Results arrive on a private `MessageChannel` the learner cannot reach; the
+parent derives the verdict from per-test rows; harness globals are locked and
+builtins captured before learner code loads; an import policy denies
+`worker_threads`, `vm`, `child_process`, `module` and files outside the run
+directory. The learner's clock starts only once the environment (jsdom, PGlite,
+the TypeScript program) is ready, and a failure that is the sandbox's fault is
+never scored against you. See `upskilling/journal/005-*.md` for the reasoning.
 
 ---
 
-## Adding your own lessons
-
-Lessons are data. Add one to a chapter's `lessons` array in
-`content/<track>/index.ts` and it appears in the UI immediately — XP totals,
-unlock rules, quests and achievements all follow automatically.
-
-See [content/AUTHORING.md](content/AUTHORING.md) for the full guide, including
-the globals available to a grader for each lesson kind.
-
-Then check your work:
+## Adding lessons
 
 ```bash
-npm run verify              # every reference solution passes, every starter fails
-npm run verify -- --track=sql   # one track
-npm run lesson <lesson-id>  # run one lesson's reference solution, verbosely
+npm run lesson <id>                 # run one lesson's reference, verbosely
+npm run lesson <id> -- --starter
+npm run verify -- --track=sql       # every reference passes, every starter fails fast
+npm run verify -- --changed         # only lessons touched since HEAD
+npm run mutate -- --lesson=<id>     # do the lesson's tests catch small breakages?
 ```
 
-`npm run verify` is the important one. It runs every lesson's reference solution
-through the real grader and asserts it passes, then runs the **starter** code
-and asserts it *fails* — a lesson whose starter already passes is a lesson that
-teaches nothing.
-
----
+[content/AUTHORING.md](content/AUTHORING.md) is the full guide.
 
 ## Checking the whole thing works
 
 ```bash
-npm test              # typecheck + content lint + sandbox harness + all 72 reference solutions
-npm run test:sandbox  # the grading sandbox itself: every kind, timeouts, compile errors
-npm run test:api      # plays through lessons against a running server (resets progress!)
-npm run test:ui       # mounts the real React app in jsdom and asserts every screen renders
-npm run curriculum    # per-track lesson, XP and boss counts
+npm test            # typecheck + economy unit tests + sandbox harness + all lessons
+npm run test:api    # hermetic: starts its own server with a scratch DATA_DIR
+npm run test:ui     # hermetic: mounts the real UI in jsdom and drives a pass
 ```
 
-`test:api` and `test:ui` need the server running (`npm run dev`), and `test:api`
-resets your save file — run it before you have progress worth keeping.
+CI runs all of it on every push.
 
 ---
 
 ## Choices worth explaining
 
-**Why a JSON save file instead of Postgres?** So the app survives being copied
-to a USB stick, and so there is no setup step between `npm install` and
-learning. The Postgres track uses PGlite, which needs no server either.
+**JSON save, not a database** — so the app survives being copied to a USB
+stick. Durability is ours to keep: fsync-then-rename, daily backups,
+quarantine instead of overwrite on a parse failure, versioned migrations.
 
-**Why is the curriculum TypeScript rather than markdown files?** Because a
-lesson is code plus prose plus a grader, and keeping them in one typed object
-means a malformed lesson is a compile error instead of a runtime surprise.
-`npm run verify` then proves every one of them actually works.
+**Files on disk with typed metadata** — code should be code: highlighted,
+diffable, no escaping. Everything TypeScript can check stays typed.
 
-**Why no algorithm questions?** Because the gap between junior and mid is not
-algorithmic. It is race conditions, error handling, schema design, knowing why
-your component re-rendered, and being trusted to review someone else's change.
-That is what this covers.
+**No algorithm questions** — the junior→mid gap is race conditions, error
+handling, schema design, knowing why a component re-rendered, writing a test
+that fails for the right reason, and reviewing someone else's change.
 
-**The 740 KB bundle** is almost entirely CodeMirror. It is served from
-localhost, so it costs nothing worth optimising.
+**`upskilling/`** holds a mid→senior programme that uses this repository as
+the vehicle, the adversarial reviews that shaped v2 (kept verbatim), and a
+journal of what went wrong and what it taught.

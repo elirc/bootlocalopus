@@ -1,5 +1,15 @@
 node_modules/
 dist/
 .runs/
-data/progress.json
 *.log
+
+# The learner's save file and everything the persistence layer writes beside it.
+data/progress.json
+data/progress.json.*.tmp
+data/progress.corrupt-*.json
+data/backups/
+data/.lock
+
+# Tool caches.
+.cache/
+*.tsbuildinfo

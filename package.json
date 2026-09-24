@@ -4,21 +4,31 @@
   "private": true,
   "type": "module",
   "description": "A local, gamified curriculum for going from junior to mid-level SWE on the JS/TS/React/Node/Postgres stack",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elirc/bootlocalopus"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "npm run build && tsx server/index.ts --prod",
     "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
-    "dev:api": "tsx watch --clear-screen=false server/index.ts",
+    "dev:api": "tsx watch --clear-screen=false --include \"content/**/*\" server/index.ts",
     "dev:web": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "lint:content": "node scripts/lint-content.mjs content/js/index.ts content/ts/index.ts content/react/index.ts content/node/index.ts content/sql/index.ts content/craft/index.ts",
     "verify": "tsx scripts/verify-content.ts",
     "lesson": "tsx scripts/debug-lesson.ts",
     "curriculum": "tsx scripts/curriculum-report.ts",
+    "mutate": "tsx scripts/mutate.ts",
+    "test:unit": "node --import tsx --test server/gamify.test.ts",
     "test:sandbox": "tsx scripts/smoke.ts",
     "test:api": "tsx scripts/e2e.ts",
-    "test:ui": "node scripts/ui-smoke.mjs",
-    "test": "npm run typecheck && npm run lint:content && npm run test:sandbox && npm run verify"
+    "test:ui": "tsx scripts/ui-smoke.ts",
+    "test": "npm run typecheck && npm run test:unit && npm run test:sandbox && npm run verify",
+    "prepare": "node scripts/setup-hooks.mjs"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.2",
@@ -42,6 +52,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
     "concurrently": "^9.1.0",
+    "esbuild": "^0.28.2",
     "tsx": "^4.19.2",
     "vite": "^5.4.11"
   }

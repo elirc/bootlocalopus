@@ -1,0 +1,363 @@
+import { loadChapter } from '../../load.ts';
+
+const here = import.meta.dirname;
+
+export default loadChapter(here, {
+  id: 'craft-working',
+  title: 'Working Like a Mid',
+  summary: 'Code review, git, debugging method, and refactoring under test.',
+  lessons: [
+    {
+      id: 'craft-code-review',
+      title: 'Reviewing code well',
+      kind: 'quiz',
+      xp: 65,
+      why: 'Reviewing is the first mid-level responsibility you get handed, and the fastest way to be trusted or distrusted.',
+      tags: ['code review', 'collaboration'],
+      quiz: [
+        {
+          q: 'You are reviewing a 900-line PR that mixes a refactor, a bug fix and a new feature. What is the most useful first response?',
+          options: [
+            'Read it all carefully and leave comments on everything you find',
+            'Ask for it to be split, explaining that mixed concerns make the bug fix impossible to review or revert independently',
+            'Approve it — the author knows the code better than you do',
+            'Reject it without comment; the size speaks for itself',
+          ],
+          answer: [1],
+          explain: 'Size is the review problem, so fix that first. A mixed PR cannot be reverted selectively when the bug fix turns out to be wrong, and reviewers skim past a certain length — the defect-detection rate drops sharply. Ask early and explain the reason, before either of you sinks time into line-by-line comments.',
+        },
+        {
+          q: 'Which of these belong in a code review comment? Select all.',
+          options: [
+            'A correctness problem: this loses the error when the promise rejects',
+            'A missing test for the branch the PR just introduced',
+            'A naming choice that will confuse the next reader, offered as a suggestion',
+            'Reformatting preferences your linter does not enforce',
+          ],
+          answer: [0, 1, 2],
+          explain: 'Correctness, coverage, and clarity are all fair. Style that a tool does not enforce is not: either configure the linter so the machine says it, or let it go. Hand-policing formatting burns the goodwill you need for the comments that matter.',
+        },
+        {
+          q: 'You are fairly sure a line is wrong but you do not know the domain well. How do you phrase it?',
+          options: [
+            'This is broken, fix it',
+            'Ask: "what happens here if `items` is empty? I think this throws, but I may be missing something upstream"',
+            'Say nothing, since you are not certain',
+            'Approve, and open a separate bug ticket afterwards',
+          ],
+          answer: [1],
+          explain: 'A specific question with your reasoning shown gets the answer either way: you learn the constraint you were missing, or the author sees the bug. Staying silent because you are unsure is how bugs ship — uncertainty is a reason to ask, not to withhold.',
+        },
+        {
+          q: 'A PR is correct but you would have structured it differently. What now?',
+          options: [
+            'Request changes until it matches your structure',
+            'Approve, and if the alternative is genuinely better, mention it as a non-blocking note',
+            'Approve silently and rewrite it yourself later',
+            'Escalate to the tech lead to decide',
+          ],
+          answer: [1],
+          explain: 'Correct-but-different is not a defect. Blocking on personal preference makes you a bottleneck and teaches people to avoid your reviews. Say it once as a non-blocking note; if the structure really matters, it belongs in a team convention rather than one PR.',
+        },
+        {
+          q: 'What does a review comment marked "nit:" mean, and how should it be treated?',
+          options: [
+            'A minor, non-blocking observation the author may take or leave',
+            'A blocking issue phrased politely',
+            'A note for a future PR that should not be addressed now',
+            'A formatting error the linter missed',
+          ],
+          answer: [0],
+          explain: 'Prefixing "nit:" is a signal about severity, which is genuinely useful — it tells the author what to prioritise and what they are free to ignore. It stops being useful the moment you also block approval on your nits.',
+        },
+        {
+          q: 'Your review finds a design problem that would take a week to address properly, in a PR that must ship today for a customer commitment. Best move?',
+          options: [
+            'Block until the design is fixed',
+            'Approve and say nothing',
+            'Approve for the deadline, write down the specific problem and its risk, and get a ticket scheduled — with the author and the person owning the deadline both aware',
+            'Approve and fix the design yourself over the weekend',
+          ],
+          answer: [2],
+          explain: 'Deliberate, recorded, visible debt is engineering. Silent debt is a trap for whoever touches the code next, and blocking a commitment over something that takes a week is a decision above your pay grade — surface the trade-off and let it be made with eyes open.',
+        },
+        {
+          q: 'Which of these are signs your own PR will get a good review? Select all.',
+          options: [
+            'A description explaining why the change exists, not just what it does',
+            'It is small and does one thing',
+            'You have left comments on your own non-obvious decisions',
+            'It includes several unrelated drive-by cleanups so the codebase improves faster',
+          ],
+          answer: [0, 1, 2],
+          explain: 'Context, size and self-annotation all raise review quality — you are doing the reviewer\'s hardest work for them. Drive-by cleanups do the opposite: they hide the real change in noise. Send them separately, where they are trivially approvable.',
+        },
+      ],
+    },
+    {
+      id: 'craft-git',
+      title: 'Git with intent',
+      kind: 'quiz',
+      xp: 65,
+      why: 'Every team has someone who can untangle git and someone who is afraid of it. Being the first one saves the team hours.',
+      tags: ['git', 'version control'],
+      quiz: [
+        {
+          q: 'You committed to `main` locally but meant to work on a branch. Nothing is pushed. Simplest fix?',
+          options: [
+            'Create a branch at the current commit, then move `main` back: `git branch feature && git reset --hard origin/main`',
+            'Revert the commit and redo the work on a branch',
+            'Delete the repository and re-clone',
+            'Cherry-pick the commit onto a new branch, then force-push main',
+          ],
+          answer: [0],
+          explain: 'A branch is just a pointer. Create one where you are, then move `main` back to the remote\'s position. `git switch -c feature` followed by resetting main works the same way. Nothing is pushed, so nobody else is affected and no force-push is needed.',
+        },
+        {
+          q: 'A bad commit is already on `main` and other people have pulled it. What should you do?',
+          options: [
+            '`git revert <sha>` — a new commit that undoes it',
+            '`git reset --hard <previous>` and force-push',
+            '`git rebase -i` to drop the commit and force-push',
+            'Amend the commit and force-push',
+          ],
+          answer: [0],
+          explain: 'Once history is shared, rewriting it breaks everyone who has it — their next pull conflicts or silently resurrects the change. `revert` adds a new commit that undoes the old one, keeping history append-only. Rewriting is only safe on branches nobody else has.',
+        },
+        {
+          q: 'What is the practical difference between merging and rebasing your feature branch onto an updated `main`?',
+          options: [
+            'Merge preserves the real history and adds a merge commit; rebase replays your commits on top of main, giving a linear history but new commit hashes',
+            'Rebase is always safer',
+            'Merge loses commits; rebase keeps them',
+            'They produce identical results with different commands',
+          ],
+          answer: [0],
+          explain: 'Both get you up to date; they differ in the history they leave and in the hashes. Because rebase rewrites your commits, it is fine on a branch only you have and hostile on one others are building on. That is the whole trade-off — the rest is team taste.',
+        },
+        {
+          q: 'A bug appeared somewhere in the last 200 commits and you have a reliable way to reproduce it. Fastest way to find the commit that introduced it?',
+          options: [
+            '`git bisect` — binary search over the range, testing each midpoint',
+            'Read the diff of all 200 commits',
+            '`git blame` on the file you suspect',
+            'Revert commits one at a time from the newest',
+          ],
+          answer: [0],
+          explain: 'Bisect finds it in about 8 steps instead of 200. With a script that exits non-zero on the bug, `git bisect run ./check.sh` automates the whole search. `blame` is for "who last touched this line", which is a different question and misleads when the bug is an interaction.',
+        },
+        {
+          q: 'You ran `git reset --hard` and lost a commit you needed. It was never pushed. Is it recoverable?',
+          options: [
+            'Yes — `git reflog` lists where HEAD has been, and you can reset or cherry-pick back to that commit',
+            'No, `--hard` is permanent',
+            'Only if you have a backup of the working directory',
+            'Only via the remote, which does not have it',
+          ],
+          answer: [0],
+          explain: 'The commit object still exists; you only moved the pointer away from it. `git reflog` shows HEAD\'s history, including the abandoned position, and you can get back with `git reset --hard <sha>` or cherry-pick it. Unreachable commits survive until garbage collection, typically weeks later. What `--hard` does destroy permanently is *uncommitted* work.',
+        },
+        {
+          q: 'Which of these make a commit message genuinely useful? Select all.',
+          options: [
+            'A subject line saying what changed, in the imperative',
+            'A body explaining why, especially any non-obvious constraint',
+            'A reference to the ticket or incident that prompted it',
+            'A list of every file touched',
+          ],
+          answer: [0, 1, 2],
+          explain: 'The what is visible in the diff; the why is not, and that is what someone reading `git log` in a year actually needs. Listing files duplicates information git already has, and goes stale the moment the commit is amended.',
+        },
+        {
+          q: 'What is `git stash` appropriate for?',
+          options: [
+            'Parking uncommitted changes briefly to switch context, expecting to pop them shortly',
+            'Long-term storage of work in progress',
+            'Sharing work with a colleague',
+            'Saving work before a `--hard` reset, as a substitute for committing',
+          ],
+          answer: [0],
+          explain: 'A stash is a short-lived, local, easily forgotten stack. Anything you want to keep, share, or come back to next week belongs on a branch as a commit — a WIP commit costs nothing and can be amended or squashed later.',
+        },
+      ],
+    },
+    {
+      id: 'craft-debugging',
+      title: 'Debugging as a method',
+      kind: 'quiz',
+      xp: 70,
+      why: 'The difference between an hour and a day is method, not cleverness. This is the most transferable skill on the list.',
+      tags: ['debugging', 'method'],
+      quiz: [
+        {
+          q: 'A bug is reported that you cannot reproduce. What is the highest-value next step?',
+          options: [
+            'Guess at a fix and ship it, then see if reports stop',
+            'Invest in reproducing it: exact version, data, browser, timing, sequence — a reliable reproduction is most of the fix',
+            'Close it as not reproducible',
+            'Add logging everywhere and wait',
+          ],
+          answer: [1],
+          explain: 'Without a reproduction you cannot confirm a fix — you can only stop seeing reports, which is not the same thing. Reproduction also usually reveals the cause on its own, because the conditions you need to recreate it *are* the bug. Adding logging is a fine tactic, but targeted at a hypothesis rather than sprayed everywhere.',
+        },
+        {
+          q: 'You have a hypothesis about the cause. What is the ideal next action?',
+          options: [
+            'Implement the fix and see if the bug goes away',
+            'Design the cheapest observation that would prove the hypothesis WRONG, and run that',
+            'Ask a senior colleague to confirm your hypothesis',
+            'Refactor the surrounding code so the bug cannot happen',
+          ],
+          answer: [1],
+          explain: 'Seeking disconfirmation is what stops you spending a day defending a wrong theory. A fix that appears to work is weak evidence: it may have masked the symptom, or the bug may be intermittent. Prove the mechanism, then fix it.',
+        },
+        {
+          q: 'A bug happens only in production. Which are legitimate ways to narrow it down? Select all.',
+          options: [
+            'Compare configuration and data between environments — the difference is the clue',
+            'Add structured logging around the suspect path and deploy it',
+            'Reproduce with a copy of production-shaped data locally',
+            'Change three suspicious things at once to save deploys',
+          ],
+          answer: [0, 1, 2],
+          explain: '"Works locally" means something differs: config, data volume, concurrency, clock, network. Chasing that difference is the whole game. Changing three things at once means a fix tells you nothing about which one mattered — and if the bug persists you have ruled out nothing.',
+        },
+        {
+          q: 'Intermittent test failure, about 1 run in 20. Most likely causes? Select all.',
+          options: [
+            'Tests sharing mutable state and running in a different order',
+            'A race: an assertion that does not wait for an async update',
+            'Time or timezone dependence, e.g. a date boundary',
+            'The test framework being unreliable',
+          ],
+          answer: [0, 1, 2],
+          explain: 'Shared state, unawaited async, and clock dependence account for the overwhelming majority of flakes. The framework is almost never the problem. Retrying a flaky test until it passes hides a real race that will eventually bite in production — flakes are bug reports.',
+        },
+        {
+          q: 'What does a stack trace actually tell you?',
+          options: [
+            'The path of calls that led to the throw — the site of the symptom, not necessarily the cause',
+            'The line containing the bug',
+            'Which variable was wrong',
+            'The complete history of program execution',
+          ],
+          answer: [0],
+          explain: 'The trace shows where the program noticed a problem. The cause is frequently further back: a null that was inserted three functions earlier, or a config value never set. Read the trace to find where to start looking upstream, not as a verdict.',
+        },
+        {
+          q: 'You have been stuck for two hours. Which of these are genuinely good moves? Select all.',
+          options: [
+            'Write down what you know, what you have ruled out, and what you assumed',
+            'Explain it out loud to a colleague, even one unfamiliar with the code',
+            'Take a break',
+            'Keep going — stopping now wastes the context you have built',
+          ],
+          answer: [0, 1, 2],
+          explain: 'Two hours stuck usually means a wrong assumption you have not examined. Writing it down and explaining it both force the assumptions into the open, which is why rubber-ducking works. Pushing through on momentum is how the third hour becomes the sixth.',
+        },
+        {
+          q: 'You found and fixed the bug. What should you also do?',
+          options: [
+            'Add a test that fails without the fix, and check whether the same mistake exists elsewhere',
+            'Nothing — the bug is fixed',
+            'Refactor the whole module while you understand it',
+            'Add a comment warning others not to touch the code',
+          ],
+          answer: [0],
+          explain: 'The regression test is what stops it coming back, and a bug is usually an instance of a pattern — the same off-by-one or unawaited promise often appears in three other places. That search is the cheapest bug-finding you will ever do, because you already know exactly what to look for.',
+        },
+      ],
+    },
+    {
+      id: 'craft-refactor',
+      title: 'Refactoring under test',
+      kind: 'js',
+      xp: 100,
+      why: 'Being trusted to improve code you did not write, without breaking it, is the definition of mid-level.',
+      tags: ['refactoring', 'readability', 'testability'],
+      hints: [
+        'Read the original carefully first, especially the `5000`: free shipping is decided on the subtotal *after* discount, and 5000 is really `config.freeShippingThresholdCents` with a default.',
+        'Extract one function at a time and run the tests after each. That way a failure points at the step you just took.',
+        'Keep the rounding exactly where it was: discount rounds, tax rounds, and the subtotal is a plain integer sum. Moving a `Math.round` is a behaviour change, not a refactor.',
+        '`validateOrder` should return the same problems in the same order the original pushed them — per item, sku then quantity then unitCents.',
+        'Once the pieces exist, `processOrder` is: validate, then compute subtotal, discount, shipping, tax, and assemble the result.',
+      ],
+    },
+    {
+      id: 'craft-review-diff',
+      title: 'Review a real pull request',
+      kind: 'quiz',
+      xp: 90,
+      why: 'Knowing what good review looks like is not the same as catching the unawaited write and the logged API key in a 90-line diff — while leaving the author\'s correct changes alone.',
+      tags: ['code review', 'security', 'async', 'SQL', 'pagination'],
+      quiz: [
+        {
+          q: 'The PR has five defects across the two files. In **`orders.js`**, which of these changed lines are defects that should block the merge? Select every defect and nothing that is fine.',
+          options: [
+            '`orders.js:12` — `const offset = page * limit;`',
+            '`orders.js:25` — a missing order and another customer\'s order both return 404',
+            '`orders.js:31` — `repo.updateStatus(order.id, \'cancelled\', req.body.reason ?? \'\');`',
+            '`orders.js:38` — `logger.info({ orderId: order.id, headers }, \'requesting refund\');`',
+          ],
+          answer: [0, 2, 3],
+          explain: 'Three defects. **orders.js:12** is an off-by-one: `page` is 1-based (line 10 forces it to at least 1), so page 1 gets `OFFSET 20` and every customer\'s newest 20 orders are unreachable; it should be `(page - 1) * limit`. **orders.js:31** is a missing `await`: the refund goes out whether or not the UPDATE succeeded, and a failed UPDATE becomes an unhandled rejection. **orders.js:38** logs the `headers` object, which contains `Bearer <paymentsApiKey>`, into a third-party log service most of engineering can search.\n\nThe decoy: **orders.js:25** returns 404 for someone else\'s order on purpose. A 403 would confirm that the id exists, which lets a client enumerate orders; comparing `customer_id` *is* the authorization check.',
+        },
+        {
+          q: 'In **`orderRepository.js`**, which of these changed lines are defects that should block the merge? Select every defect and nothing that is fine.',
+          options: [
+            '`orderRepository.js:13` — `ORDER BY created_at DESC, id DESC`',
+            '`orderRepository.js:21` — `const pattern = \'%\' + term.replace(…) + \'%\';`',
+            '`orderRepository.js:35` — `"UPDATE orders SET status = $1, status_note = \'" + note + "\', …"`',
+            '`orderRepository.js:42` — `SELECT … FROM orders WHERE status = $1 ORDER BY created_at DESC`',
+          ],
+          answer: [2, 3],
+          explain: 'Two defects. **orderRepository.js:35** concatenates the customer-supplied `reason` into SQL — a reason of `\', total_cents = \'0` zeroes the order\'s total, and worse is possible. **orderRepository.js:42** has no `LIMIT`: in a table of millions growing by tens of thousands a day, one admin page load fetches and serialises an unbounded result set.\n\nThe two decoys are fine. **orderRepository.js:13** adds a tiebreaker, which makes the order total so OFFSET pages cannot skip or repeat rows that share a `created_at`. **orderRepository.js:21** looks like string-built SQL, but `pattern` is a bound parameter (`$2`): the concatenation builds a *value*, never SQL text, and escaping `\\`, `%` and `_` stops a user\'s `%` acting as a wildcard.',
+        },
+        {
+          q: 'What is the right fix for `orders.js:31`, and why?',
+          options: [
+            'Append `.catch(() => {})`, so a failed UPDATE can no longer crash the process',
+            'Move the call after `res.status(204).end()`, so the customer gets a faster response',
+            'Leave it: a single-row UPDATE by primary key finishes long before the payments call returns',
+            'Add `await`, so the status is persisted before the refund is requested and a failed UPDATE rejects the handler instead of floating as an unhandled rejection',
+          ],
+          answer: [3],
+          explain: 'Without `await` the order of effects is not what the code reads as: the refund can be issued while the UPDATE is still in flight or after it has failed, leaving an order that is refunded but still `pending` — and cancellable again. The rejected promise is also unhandled; since Node 15 that terminates the process by default, taking every other in-flight request with it. `.catch(() => {})` swaps the crash for silent inconsistency, and "it is fast enough" is a race you lose under load, during a failover, or on a lock wait. (With `await`, Express 4 still needs the rejection forwarded to `next` — an async wrapper or Express 5 — but the ordering bug is gone.)',
+        },
+        {
+          q: 'What is the right fix for `orderRepository.js:35`?',
+          options: [
+            'Escape quotes first: `note.replaceAll("\'", "\'\'")`, then keep the concatenation',
+            'Make the note a bind parameter: `status_note = $3`, with `[status, id, note]`',
+            'Validate `reason` in the handler against an allowlist such as `/^[\\w\\s.,!?-]{0,200}$/`',
+            'Run the UPDATE inside a transaction, so an injected statement can be rolled back',
+          ],
+          answer: [1],
+          explain: 'A bind parameter sends the value separately from the SQL text, so it can never be parsed as SQL — whatever it contains. Hand-escaping is the approach that keeps failing: it depends on the server\'s quoting rules (backslashes, `standard_conforming_strings`, encodings) and on every future author remembering to do it. An allowlist is reasonable input validation, but it is not the fix: the query is still built by concatenation, and this one would reject a customer who writes "didn\'t arrive". A transaction does nothing against injection — the injected SQL runs inside it and is committed with everything else.',
+        },
+        {
+          q: 'What is the right fix for the admin list at `orderRepository.js:42`?',
+          options: [
+            'Add an index on `(status, created_at)`, so the query is fast even with a million matching rows',
+            'Append `LIMIT 1000` to the query',
+            'Page it: accept a cursor and a server-capped limit, `WHERE status = $1 AND (created_at, id) < ($2, $3) ORDER BY created_at DESC, id DESC LIMIT $4`, and return the next cursor',
+            'Cache the response for 60 seconds, so the query runs at most once a minute',
+          ],
+          answer: [2],
+          explain: 'The defect is that the response size is unbounded: a million pending rows are fetched into the Node process, serialised and sent to a browser, whatever the plan looks like. An index makes finding them faster but still returns all of them — and you want it anyway, to serve the paged query. `LIMIT 1000` stops the blow-up but silently truncates: order 1001 is invisible and nothing tells the admin the list is incomplete. A cache means the process still builds the huge payload, now once a minute and held in memory. Keyset pagination with a capped page size bounds every request, and the `(created_at, id)` cursor stays fast on deep pages where OFFSET gets slower the further you go.',
+        },
+        {
+          q: 'On `orders.js:38` the author replies: "It is info level, the logs are internal, and I need the headers to debug the payments integration." What is the best response?',
+          options: [
+            'Fair enough: internal logs are an acceptable place for credentials, as long as it is not debug level',
+            'Keep the line, but restrict who can search the log index that holds payments logs',
+            'Log what the debugging needs (order id, idempotency key, the response status), never the headers; configure the logger to redact `authorization`; and rotate the key if this code has already run anywhere that ships logs',
+            'Change it to `logger.debug`, so the headers only appear when debug logging is switched on',
+          ],
+          answer: [2],
+          explain: 'A secret in a log has left your control: logs are shipped to a vendor, retained for months, exported to tickets and pasted into chat. "Internal" is not a boundary, access restrictions on one index do not follow the copies, and a debug-level line is exactly what someone switches on in production during an incident. Log the fields that actually help debug the integration — the order id, the idempotency key, the status the payments service returned — and make redaction of `authorization`, `cookie` and similar keys a logger setting, so the next person cannot repeat the mistake. If the key was ever logged anywhere real, deleting the line is not enough: rotate it.',
+        },
+      ],
+    },
+  ],
+});
