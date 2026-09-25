@@ -6,6 +6,8 @@ import nodeTrack from './node/track.ts';
 import sqlTrack from './sql/track.ts';
 import testingTrack from './testing/track.ts';
 import craftTrack from './craft/track.ts';
+import webTrack from './web/track.ts';
+import designTrack from './design/track.ts';
 
 /**
  * Track order is the suggested path: language fundamentals, then types, then
@@ -14,7 +16,7 @@ import craftTrack from './craft/track.ts';
  * Each track.ts pulls in its chapter.ts files, and each chapter.ts loads its
  * lesson folders through content/load.ts, which validates them as it goes.
  */
-export const tracks: Track[] = [jsTrack, tsTrack, reactTrack, nodeTrack, sqlTrack, testingTrack, craftTrack];
+export const tracks: Track[] = [jsTrack, tsTrack, reactTrack, nodeTrack, sqlTrack, testingTrack, webTrack, designTrack, craftTrack];
 
 const seen = new Map<string, string>();
 for (const t of tracks) {

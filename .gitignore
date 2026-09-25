@@ -13,3 +13,6 @@ data/.lock
 # Tool caches.
 .cache/
 *.tsbuildinfo
+
+# Lessons still being authored (see content/load.ts).
+content/**/_draft-*/

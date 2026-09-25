@@ -262,7 +262,7 @@ Write options that a competent person could plausibly pick. Four options where
 three are obviously silly tests nothing. The explanation is the actual lesson —
 say *why*, and what the failure mode looks like in production.
 
-### `mutation` (layout defined; no lesson uses it yet)
+### `mutation`
 
 The learner writes the **tests**; the grader runs them against a correct
 implementation, which must pass, and against broken variants, each of which
@@ -295,7 +295,7 @@ The loader pairs `mutants[i]` with `mutants/<i+1>-<slug>.js` and produces
 `Lesson.mutants = [{ label, code }]`; the label is what the learner sees when
 their tests let that mutant survive. `equivalents/1.js, 2.js, …` (contiguous)
 become `Lesson.equivalents`. With `subjectKind: 'react'` the subject, mutants and
-equivalents are `.jsx` files. A test that fails an equivalent a test that fails an equivalent is testing
+equivalents are `.jsx` files. A test that fails an equivalent is testing
 implementation details (a CSS class instead of a role), not behaviour. There is
 no `tests` file.
 

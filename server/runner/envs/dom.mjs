@@ -44,7 +44,8 @@ export async function setupDom() {
   // rejects a jsdom AbortSignal ("Expected signal to be an instance of
   // AbortSignal"), and fetch-with-a-signal is far more common in these
   // lessons than addEventListener(..., { signal }) on a DOM node.
-  for (const key of ['Event', 'CustomEvent', 'EventTarget', 'KeyboardEvent', 'MouseEvent', 'FocusEvent', 'InputEvent']) {
+  // FormData too: Node's cannot read a jsdom <form> (`new FormData(form)` throws).
+  for (const key of ['Event', 'CustomEvent', 'EventTarget', 'KeyboardEvent', 'MouseEvent', 'FocusEvent', 'InputEvent', 'FormData']) {
     if (win[key]) def(key, win[key]);
   }
 

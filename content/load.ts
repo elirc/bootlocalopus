@@ -2,7 +2,7 @@
  * Loads a chapter from disk: typed metadata comes from `chapter.ts`, every
  * piece of code or prose comes from the lesson's own folder. See AUTHORING.md.
  *
- * Synchronous on purpose: 72 lessons are ~300 small reads, a few ms total, and
+ * Synchronous on purpose: 500 lessons are ~2,300 small reads, once at startup, and
  * it keeps `import { tracks }` a plain static import everywhere.
  */
 import { readdirSync, readFileSync } from 'node:fs';
@@ -26,7 +26,14 @@ const ID = /^[a-z0-9-]+$/;
 export function loadChapter(dir: string, meta: ChapterMeta): Chapter {
   const fail = (m: string): never => { throw new Error(`content: ${meta.id}: ${m}`); };
   if (!ID.test(meta.id)) fail('chapter id must be [a-z0-9-]');
-  const entries = new Map(readdirSync(dir, { withFileTypes: true }).map((d) => [d.name, d]));
+  // `_draft-*` folders are lessons still being written: invisible until renamed
+  // to their id and listed in chapter.ts, so a half-finished lesson never
+  // makes the whole curriculum unloadable for everyone else.
+  const entries = new Map(
+    readdirSync(dir, { withFileTypes: true })
+      .filter((d) => !d.name.startsWith('_draft-'))
+      .map((d) => [d.name, d]),
+  );
   if (!entries.delete('chapter.ts')) fail(`chapter.ts missing in ${dir}`);
 
   const lessons = meta.lessons.map((m): Lesson => {

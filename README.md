@@ -3,7 +3,7 @@
 A local, gamified curriculum for going from **junior to mid-level** on the
 JavaScript / TypeScript / React / Node / Postgres stack.
 
-102 lessons, 10,045 XP, seven tracks. No LeetCode, no algorithm puzzles —
+508 lessons, 50,555 XP, nine tracks, 76 chapters. No LeetCode, no algorithm puzzles —
 every lesson is a thing you will actually be asked to do at work, and every
 one is graded by running your code against real tooling.
 
@@ -31,14 +31,14 @@ thread against genuine tooling:
 
 | Lesson kind | How it is graded | Count |
 | --- | --- | --- |
-| `js` / `ts` | Your module is imported and exercised by a test suite | 19 |
-| `typecheck` | **Real `tsc --strict`.** Zero diagnostics is the pass condition; specs assert types with `Expect<Equal<…>>` and `@ts-expect-error` | 12 |
-| `react` | **jsdom + React DOM + Testing Library.** Rendered, clicked, re-rendered, checked for ARIA and focus | 16 |
-| `node` | **A real HTTP server** on a real port, hit with real `fetch`. Streams, `node:crypto`, `AsyncLocalStorage`, graceful shutdown | 20 |
-| `sql` | **Real Postgres** (PGlite, compiled to WASM). DDL and queries run; constraints fire; `EXPLAIN` plans are inspected | 14 |
-| `node-db` | Node code against that same real Postgres — parameterisation, transactions | 2 |
-| `mutation` | **You write the tests.** They must pass a correct implementation *and* a refactored equivalent, and catch every deliberately broken mutant | 6 |
-| `quiz` | Judgement calls code cannot grade — code review (including a real diff), git, incidents, caching, tsconfig | 13 |
+| `js` / `ts` | Your module is imported and exercised by a test suite | 133 |
+| `typecheck` | **Real `tsc --strict`.** Zero diagnostics is the pass condition; specs assert types with `Expect<Equal<…>>` and `@ts-expect-error` | 50 |
+| `react` | **jsdom + React DOM + Testing Library.** Rendered, clicked, re-rendered, checked for ARIA and focus | 66 |
+| `node` | **A real HTTP server** on a real port, hit with real `fetch`. Streams, `node:crypto`, `AsyncLocalStorage`, graceful shutdown | 94 |
+| `sql` | **Real Postgres** (PGlite, compiled to WASM). DDL and queries run; constraints fire; `EXPLAIN` plans are inspected | 48 |
+| `node-db` | Node code against that same real Postgres — parameterisation, transactions, locking, migrations | 19 |
+| `mutation` | **You write the tests.** They must pass a correct implementation *and* a refactored equivalent, and catch every deliberately broken mutant | 34 |
+| `quiz` | Judgement calls code cannot grade — code review (including real diffs), git, incidents, caching, design docs | 64 |
 
 There is no "check my answer against a string" anywhere. If your rate limiter
 leaks a token, your `useEffect` lets a stale response win a race, your cookie
@@ -51,13 +51,15 @@ the tests say so.
 
 | Track | Chapters | Lessons | XP | What it is for |
 | --- | --- | --- | --- | --- |
-| **JavaScript You Actually Need** | 5 | 17 | 1,565 | Closures, the event loop, concurrency control, cancellation, immutability, error design, dates across DST, regex that cannot DoS you |
-| **TypeScript for Production** | 4 | 15 | 1,350 | Narrowing, discriminated unions, generics, `infer`, template literals, `satisfies`, typed APIs, schema inference, branded ids, the tsconfig flags that catch bugs |
-| **React Patterns & Performance** | 4 | 16 | 1,690 | Derived state, reducers, hooks, effect races, composition, accountable renders, accessibility, error boundaries, forms at scale, XSS, an ARIA combobox |
-| **Node & API Engineering** | 5 | 20 | 2,115 | HTTP without a framework, middleware, validation, errors, tokens, rate limits, streams, shutdown; security (authz, password hashing, cookies/CSRF, secrets); production (single-flight caches, structured logs, SSE, circuit breakers) |
-| **Postgres & Data Modelling** | 5 | 18 | 1,745 | Constraints, migrations, indexes, joins, windows, recursive CTEs, upserts, N+1, keyset pagination; Postgres from code (injection, transactions, a DataLoader); JSONB and `EXPLAIN` |
-| **Testing & Quality** | 2 | 7 | 780 | You write the suite, graded on whether it catches real bugs without pinning the implementation |
-| **Engineering Craft** | 2 | 9 | 800 | Code review, git, debugging method, refactoring under test, caching, observability, scoping, incident response |
+| **JavaScript You Actually Need** | 11 | 71 | 6,760 | Closures, the event loop, concurrency control, cancellation, immutability, error design, dates across DST, safe regex; prototypes, proxies and private brands; ESM/CJS and the runtime; functional tools; async patterns (semaphores, single-flight, channels); collections; exact money, BigInt, Intl and Unicode |
+| **TypeScript for Production** | 10 | 69 | 6,700 | Narrowing, discriminated unions, generics, `infer`, template literals, `satisfies`, schema inference, branded ids; `const` type params, `NoInfer`, overloads, variance; typing reducers, stores and module declarations; exhaustiveness and assertion functions; key paths and deep types; runtime boundaries; migrating a codebase to strict |
+| **React Patterns & Performance** | 10 | 70 | 7,140 | Derived state, reducers, effect races, composition, error boundaries, XSS; hooks in depth; state management without a library (selectors, URL state, undo/redo); data fetching (SWR, dedupe, invalidation, Suspense); render performance and virtualisation; accessible widgets (menus, focus traps, trees); advanced forms |
+| **Node & API Engineering** | 14 | 101 | 10,425 | HTTP without a framework, validation, errors, tokens, rate limits, streams, shutdown; files and CLIs; backpressure; ranges, compression, content negotiation; API design (cursors, idempotency, ETags, versioning); job queues, leases and the outbox; metrics, tracing, SLOs; sessions, JWT, RBAC, PKCE; path traversal, SSRF, uploads; retries, hedging, deadlines, load shedding |
+| **Postgres & Data Modelling** | 11 | 72 | 7,170 | Constraints, migrations, indexes, joins, windows, recursive CTEs, upserts, N+1, keyset pagination, JSONB, `EXPLAIN`; audit triggers, tenancy, temporal data; anti-joins, `LATERAL`, gaps and islands; JSON API responses; locking, `SKIP LOCKED`, serialization retries; sargable queries, full-text search, statistics; migrations runners, batching, nested transactions |
+| **Testing & Quality** | 6 | 43 | 4,425 | You write the suite, graded on whether it catches real bugs without pinning the implementation — unit, HTTP integration and React Testing Library, plus flake diagnosis, builders and contract tests |
+| **Web Platform** | 3 | 27 | 2,560 | Fetch, CORS, cookies and HTTP caching from the browser's side; URLs, routing, storage, events, cancellation; Core Web Vitals, preloading, responsive images, performance budgets |
+| **Software Design** | 3 | 28 | 2,745 | Strategy, observer, adapter, command and state machines as real features; module APIs, errors, plugins, deprecation; value objects, money allocation, aggregates, event sourcing |
+| **Engineering Craft** | 4 | 27 | 2,630 | Code review, git, debugging, refactoring, incidents; feature-flag rollouts, semver and changelogs, CI linting, canaries; estimates, PR descriptions, incident updates, postmortems |
 
 Most chapters end in a **boss** worth 3–5× a normal lesson — the kind of thing
 you would be given as a take-home.
@@ -88,7 +90,7 @@ Redesigned after review found v1 rewarded guessing; the reasoning is in
   (70% + every track at half) → Mid III (85% + every boss) → **Mid-Level**
   (100%).
 - **Levels** are a progress bar (`100 + 50(n−1)` XP each); finishing lands
-  around level 18–21.
+  around level 45–49.
 - **Streaks** with earned freezes spent automatically on a gap; **daily
   quests** drawn only from what you can reach; **27 achievements** (1,420 XP).
   What a pass was worth is frozen when it happens, so a hint opened afterwards

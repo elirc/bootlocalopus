@@ -177,7 +177,11 @@ export interface SessionOptions {
  */
 export async function runSession(data: Record<string, unknown>, opts: SessionOptions): Promise<SessionOutcome> {
   const dir = path.join(RUNS_DIR, randomUUID());
-  await mkdir(dir, { recursive: true });
+  // The worker gets no inherited environment, so give it a temp dir of its own
+  // (inside the run dir, removed with it): otherwise os.tmpdir() is
+  // "undefined\temp" on Windows, relative to the server's cwd.
+  const tmp = path.join(dir, 'tmp');
+  await mkdir(tmp, { recursive: true });
   const started = Date.now();
   let terminated: Promise<unknown> | null = null;
 
@@ -190,7 +194,7 @@ export async function runSession(data: Record<string, unknown>, opts: SessionOpt
         // A bare Node: no tsx loader hooks inherited from the server process
         // (they made runs hang intermittently).
         execArgv: [],
-        env: { NODE_ENV: 'sandbox' },
+        env: { NODE_ENV: 'sandbox', TMPDIR: tmp, TMP: tmp, TEMP: tmp },
         resourceLimits: { maxOldGenerationSizeMb: 512 },
         stdout: true,
         stderr: true,
