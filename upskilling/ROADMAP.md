@@ -8,6 +8,30 @@ repository, because it records reasoning that someone else could check. This
 programme asks you to produce more of that, on a system you already understand,
 where every defect is real and every number can be re-measured.
 
+> **Anchor status (2026-10-06).** The `file:line` anchors below were drafted
+> against the pre-hardening tree, and the very commit that landed this file
+> also split the runner; a later commit moved every lesson out of
+> `content/<track>/index.ts` into per-chapter `chapter.ts` + `track.ts` files
+> (the current format is documented in `content/AUTHORING.md`). Trust the
+> **symbol names** over the line numbers and re-locate with `git grep`.
+> Corrected key locations, verified today:
+>
+> - `runExercise` → `server/runner/index.ts:57`; `sweepRunsDir` →
+>   `server/runner/session.ts:68`; `cleanupRunDir` →
+>   `server/runner/session.ts:102`; `timeoutFor` was renamed `budgetFor`
+>   (`server/runner/session.ts`).
+> - `scripts/lint-content.mjs` was **deleted** by the hardening commit. To
+>   reproduce the linter-corruption incident (finding #4) or mission row 25,
+>   read it from v1: `git show 5def3f9:scripts/lint-content.mjs`. Row 25's
+>   defect is closed — `npm test` no longer runs a content linter at all
+>   (`test` = typecheck + unit + sandbox + verify in `package.json`).
+> - `scripts/ui-smoke.mjs` is now `scripts/ui-smoke.ts` (`npm run test:ui`),
+>   so row 16's undeclared-esbuild citation needs re-checking there.
+> - "`content/node/index.ts` alone is 3,325 lines" described the old layout;
+>   that content now lives across `content/node/track.ts` and its chapter
+>   directories. The escaping pain the passage describes is likewise covered
+>   by the current `content/AUTHORING.md`.
+
 The app grades small exercises. This programme does not. Each mission is a piece
 of ownership work on the app itself: measure it, break it, harden it, change its
 architecture, and write the documents that go with each change. The missions
